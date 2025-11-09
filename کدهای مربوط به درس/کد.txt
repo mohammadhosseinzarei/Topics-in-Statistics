@@ -1,0 +1,220 @@
+import math
+import random
+import matplotlib.pyplot as plt
+from scipy.stats import bernoulli, binom, poisson, geom
+
+# -------------------------------
+# 1. Bernoulli Distribution
+# -------------------------------
+def bernoulli_pmf(x, p):
+    if x not in [0, 1]:
+        return 0
+    return (p**x) * ((1-p)**(1-x))
+
+def bernoulli_rvs(p, n=1):
+    return [1 if random.random() < p else 0 for _ in range(n)]
+
+p = 0.6
+x_vals = [0, 1]
+
+# Print probabilities
+print("\n--- Bernoulli Distribution ---")
+for x in x_vals:
+    print(f"P(X={x}) Scratch = {bernoulli_pmf(x,p):.4f}, SciPy = {bernoulli.pmf(x,p):.4f}")
+
+# Generate random data
+print("Samples (Scratch):", bernoulli_rvs(p, 10))
+print("Samples (SciPy): ", bernoulli.rvs(p, size=10))
+
+# Plot
+pmf_scratch = [bernoulli_pmf(x, p) for x in x_vals]
+pmf_scipy = [bernoulli.pmf(x, p) for x in x_vals]
+
+plt.figure(figsize=(6,4))
+plt.bar(x_vals, pmf_scratch, alpha=0.6, label="Scratch")
+plt.scatter(x_vals, pmf_scipy, color="red", zorder=3, label="SciPy")
+plt.title(f"Bernoulli(p={p}) PMF")
+plt.xlabel("x")
+plt.ylabel("P(X=x)")
+plt.legend()
+plt.show()
+
+# -------------------------------
+# 2. Binomial Distribution
+# -------------------------------
+def binomial_pmf(k, n, p):
+    if k < 0 or k > n:
+        return 0
+    return math.comb(n, k) * (p**k) * ((1-p)**(n-k))
+
+def binomial_rvs(n, p, size=1):
+    samples = []
+    for _ in range(size):
+        trials = bernoulli_rvs(p, n)
+        samples.append(sum(trials))
+    return samples
+
+n, p = 10, 0.5
+x_vals = list(range(n+1))
+
+print("\n--- Binomial Distribution ---")
+for k in [0, 3, 5, 10]:
+    print(f"P(X={k}) Scratch = {binomial_pmf(k,n,p):.4f}, SciPy = {binom.pmf(k,n,p):.4f}")
+
+print("Samples (Scratch):", binomial_rvs(n, p, 10))
+print("Samples (SciPy): ", binom.rvs(n, p, size=10))
+
+pmf_scratch = [binomial_pmf(k, n, p) for k in x_vals]
+pmf_scipy = [binom.pmf(k, n, p) for k in x_vals]
+
+plt.figure(figsize=(6,4))
+plt.bar(x_vals, pmf_scratch, alpha=0.6, label="Scratch")
+plt.plot(x_vals, pmf_scipy, "ro", label="SciPy")
+plt.title(f"Binomial(n={n}, p={p}) PMF")
+plt.xlabel("x")
+plt.ylabel("P(X=x)")
+plt.legend()
+plt.show()
+
+# -------------------------------
+# 3. Poisson Distribution
+# -------------------------------
+def poisson_pmf(k, lam):
+    if k < 0:
+        return 0
+    return (math.exp(-lam) * (lam**k)) / math.factorial(k)
+
+def poisson_rvs(lam, size=1):
+    samples = []
+    for _ in range(size):
+        L = math.exp(-lam)
+        k = 0
+        p = 1
+        while p > L:
+            k += 1
+            p *= random.random()
+        samples.append(k-1)
+    return samples
+
+lam = 4
+x_vals = list(range(0, 15))
+
+print("\n--- Poisson Distribution ---")
+for k in [0, 3, 5, 10]:
+    print(f"P(X={k}) Scratch = {poisson_pmf(k,lam):.4f}, SciPy = {poisson.pmf(k,lam):.4f}")
+
+print("Samples (Scratch):", poisson_rvs(lam, 10))
+print("Samples (SciPy): ", poisson.rvs(lam, size=10))
+
+pmf_scratch = [poisson_pmf(k, lam) for k in x_vals]
+pmf_scipy = [poisson.pmf(k, lam) for k in x_vals]
+
+plt.figure(figsize=(6,4))
+plt.bar(x_vals, pmf_scratch, alpha=0.6, label="Scratch")
+plt.plot(x_vals, pmf_scipy, "ro", label="SciPy")
+plt.title(f"Poisson(λ={lam}) PMF")
+plt.xlabel("x")
+plt.ylabel("P(X=x)")
+plt.legend()
+plt.show()
+
+# -------------------------------
+# 4. Geometric Distribution
+# -------------------------------
+def geometric_pmf(k, p):
+    if k < 1:
+        return 0
+    return ((1-p)**(k-1)) * p
+
+def geometric_rvs(p, size=1):
+    samples = []
+    for _ in range(size):
+        count = 1
+        while random.random() > p:
+            count += 1
+        samples.append(count)
+    return samples
+
+p = 0.3
+x_vals = list(range(1, 15))
+
+print("\n--- Geometric Distribution ---")
+for k in [1, 2, 3, 5]:
+    print(f"P(X={k}) Scratch = {geometric_pmf(k,p):.4f}, SciPy = {geom.pmf(k,p):.4f}")
+
+print("Samples (Scratch):", geometric_rvs(p, 10))
+print("Samples (SciPy): ", geom.rvs(p, size=10))
+
+pmf_scratch = [geometric_pmf(k, p) for k in x_vals]
+pmf_scipy = [geom.pmf(k, p) for k in x_vals]
+
+plt.figure(figsize=(6,4))
+plt.bar(x_vals, pmf_scratch, alpha=0.6, label="Scratch")
+plt.plot(x_vals, pmf_scipy, "ro", label="SciPy")
+plt.title(f"Geometric(p={p}) PMF")
+plt.xlabel("x (trial of first success)")
+plt.ylabel("P(X=x)")
+plt.legend()
+plt.show()
+import numpy as np
+from scipy.stats import skew, kurtosis
+from scipy import stats
+# Sample data
+x = [12, 15, 14, 10, 18, 20, 25, 30, 18, 22]
+
+m=np.mean(x)
+print("میانگین",m)
+v=np.var(x)
+print("واریانس",v)
+
+sd=np.sqrt(v)
+print("انحراف استاندارد",sd)
+
+mm=np.max(x)
+print("ماکسیمم",mm)
+
+M=np.median(x)
+
+print("میانه",M)
+MM=stats.mode(x, keepdims=True)
+
+print("مد",MM)
+
+import numpy as np
+import matplotlib.pyplot as plt
+from scipy.stats import norm
+# Calculate the probability density function for values of x in [-6;6]
+x = np.linspace(start = -6, stop = 6, num = 200)
+#
+plt.figure(num = 0, figsize = (10, 8))
+plt.plot(x, norm.pdf(x, loc = 0, scale = 1), color = "black",
+label = "$\\mu=0$, $\sigma =1$")
+plt.plot(x, norm.pdf(x, loc = 1, scale = 1.5), color = "red",
+label = "$\\mu=1$, $\sigma =1.5$")
+plt.plot(x, norm.pdf(x, loc = -1, scale = 0.5), color = "blue",
+label = "$\\mu=-1$, $\sigma =0.5$")
+plt.title("Probability density function of $N(\\mu, \\sigma^2)$")
+plt.ylabel("Density")
+plt.legend()
+plt.show()
+
+
+###################################################
+import numpy as np
+import matplotlib.pyplot as plt
+from scipy.stats import norm
+# Calculate the probability density function for values of x in [-6;6]
+x = np.linspace(start = -6, stop = 6, num = 200)
+#
+plt.figure(num = 0, figsize = (10, 8))
+plt.plot(x, norm.pdf(x, loc = 0, scale = 1), color = "black",
+label = "$\\mu=0$, $\sigma =1$")
+plt.plot(x, norm.pdf(x, loc = 1, scale = 1.5), color = "red",
+label = "$\\mu=1$, $\sigma =1.5$")
+plt.plot(x, norm.pdf(x, loc = -1, scale = 0.5), color = "blue",
+label = "$\\mu=-1$, $\sigma =0.5$")
+plt.title("Probability density function of $N(\\mu, \\sigma^2)$")
+plt.ylabel("Density")
+plt.legend()
+plt.grid()
+plt.show()
