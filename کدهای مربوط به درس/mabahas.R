@@ -166,4 +166,20 @@ if (abs(t_test) > t_crit){
   cat ("Acc hapothesis H0 ") 
 }
 
+###################################آموزن تستی
+
+x<-c(80, 82, 78, 75, 89, 90)
+y<-c(85, 83, 80, 79, 88, 92)
+D<-x-y
+Dbar<-mean(D)
+sd<-sqrt(sum(((D-Dbar))^2)/(length(D)-1))
+t_test<-Dbar/(sd/sqrt(length(D)))
+df<-length(D)-1
+p_value<-2*(1- pt(abs(t_test), df))
+t.test(x, y, paired = TRUE)
+alpha<-0.05
+if (p_value< alpha) {
+  cat("reject hapothesis H0 ")} else {
+    cat('acc hapothesis H0')
+  }
 
