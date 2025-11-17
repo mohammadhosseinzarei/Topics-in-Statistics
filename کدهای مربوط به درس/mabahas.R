@@ -182,4 +182,22 @@ if (p_value< alpha) {
   cat("reject hapothesis H0 ")} else {
     cat('acc hapothesis H0')
   }
+##########################################
+#شبیه سازی از توزیع وایبل
+#########################################
+weibull_pdf <- function(x, beta, lambda){
+  ifelse(x < 0, 0,
+         (beta/lambda)*(x/lambda)^(beta-1)*exp(-(x/lambda)^beta))
+}
+weibull_cdf <- function(x, beta, lambda){
+  ifelse(x < 0, 0,
+         1 - exp(-(x/lambda)^beta))
+}
+weibull_survival <- function(x, beta, lambda){
+  ifelse(x < 0, 1,
+         exp(-(x/lambda)^beta))
+}
 
+weibull_inv <- function(u, beta, lambda){
+  lambda * (-log(1-u))^(1/beta)
+}
