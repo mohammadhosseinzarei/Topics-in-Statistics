@@ -183,21 +183,63 @@ if (p_value< alpha) {
     cat('acc hapothesis H0')
   }
 ##########################################
-#شبیه سازی از توزیع وایبل
+# شبیه سازی از توزیع وایبل و رسیدن به یک optimom
 #########################################
+# PDF وایبل
 weibull_pdf <- function(x, beta, lambda){
-  ifelse(x < 0, 0,
-         (beta/lambda)*(x/lambda)^(beta-1)*exp(-(x/lambda)^beta))
-}
-weibull_cdf <- function(x, beta, lambda){
-  ifelse(x < 0, 0,
-         1 - exp(-(x/lambda)^beta))
-}
-weibull_survival <- function(x, beta, lambda){
-  ifelse(x < 0, 1,
-         exp(-(x/lambda)^beta))
+  beta*lambda *x^(beta - 1) * exp(-lambda * x ^ beta)
 }
 
-weibull_inv <- function(u, beta, lambda){
-  lambda * (-log(1-u))^(1/beta)
+# CDF وایبل
+weibull_cdf <- function(x, beta, lambda){
+  1 - exp(-(x / lambda)^beta)
 }
+
+# تابع بقا
+weibull_survival <- function(x, beta, lambda){
+  exp(-(x / lambda)^beta)
+}
+
+# معکوس CDF (Inverse Transform Sampling)
+weibull_inv <- function(u, beta, lambda){
+  lambda * (-log(1 - u))^(1 / beta)
+}
+
+# شبیه‌سازی نمونه
+r_weibull_custom <- function(n, beta, lambda){
+  u <- runif(n)
+  weibull_inv(u, beta, lambda)
+}
+
+# لگ‌لایک
+loglike_weibull <- function(par, x){
+  beta <- par[1]
+  lambda <- par[2]
+  if (beta <= 0 || lambda <= 0) return(-Inf)
+  sum(log(weibull_pdf(x, beta, lambda)))
+}
+
+# MLE با L-BFGS-B
+mle_weibull <- function(x, start = c(1, 1)){
+  optim(
+    par = start,
+    fn = function(par) -loglike_weibull(par, x),
+    method = "L-BFGS-B",
+    lower = c(1e-6, 1e-6)
+  )
+}
+
+# شبیه‌سازی داده
+beta_true <- 2
+lambda_true <- 1
+n <- 500
+x <- r_weibull_custom(n, beta_true, lambda_true)
+
+# برآورد MLE
+fit <- mle_weibull(x)
+beta_hat <- fit$par[1]
+lambda_hat <- fit$par[2]
+
+# نمایش نتایج
+cat("Beta hat:", beta_hat, "\n")
+cat("Lambda hat:", lambda_hat, "\n")
