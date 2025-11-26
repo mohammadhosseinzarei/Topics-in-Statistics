@@ -1,3 +1,5 @@
+# زمانیکه واریانس جامعه معلوم باشد
+# با استفاده از کتابخانه
 install.packages("BSDA")
 set.seed(123)
 x<-rnorm(20, mean=52, sd=4)
@@ -10,6 +12,27 @@ z.test(x=x, mu=mu0, sigma.x=sigma, alternative="two.sided", conf.level=0.95 )
 z.test(x=x, mu=mu0, sigma.x = sigma, alternative="greater", conf.level = 0.95)
 
 z.test(x=x, mu=mu0, sigma.x= sigma, alternative = "less", conf.level = 0.95)
+##### بدون کتاب خانه وقتی واریانس جامعه معلوم باشد.
+# آزمون از دو طرف
+set.seed(258)
+x<-rnorm(20, mean=52, sd=4)
+mu0<-50
+xbar<-mean(x)
+sigma<-4
+n<-length(x)
+alpha<-0.05
+# آماره آزمون
+z_stat=(xbar-mu0)/(sigma/sqrt(n))
+#p_value
+p_value<-2*(1-pnorm(z_stat))
+z_stat
+p_value
+#CI
+z_crit<-qnorm(1-alpha/2)
+CI_lower=xbar-(z_crit*sigma/sqrt(n))
+CI_upper=xbar+(z_crit*sigma/sqrt(n))
+CI_lower
+CI_upper
 
 #################################################################################
 # تنظیم دانه تصادفی برای تکرارپذیری
