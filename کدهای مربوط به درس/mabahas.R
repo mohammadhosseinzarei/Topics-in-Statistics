@@ -266,3 +266,48 @@ lambda_hat <- fit$par[2]
 # نمایش نتایج
 cat("Beta hat:", beta_hat, "\n")
 cat("Lambda hat:", lambda_hat, "\n")
+
+################################################
+################################################
+set.seed(123)
+n<-100
+
+x<-runif(n, 0, 10)
+
+beta0<-2
+beta1<-3
+sigma<-1
+
+eps<-rnorm(n, 0, sigma)
+y<-beta0 + beta1 *x + eps
+
+x_bar<-mean(x)
+y_bar<- mean(y)
+
+beta1_hat<-sum((x-x_bar)*(y-y_bar))/sum((x-x_bar)^2)
+beta0_hat<-y_bar - beta1_hat * x_bar
+
+y_hat<-beta0_hat + beta1_hat*x
+
+res<-y-y_hat
+
+SSE<-sum(res^2)
+SST<-sum((y-y_bar)^2)
+
+SSR<-SST - SSE
+
+sigma2_hat<-SSE/(n-2)
+sigma_hat<-sqrt(sigma2_hat)
+
+Sxx<- sum((x - x_bar)^2)
+
+SE_beta1<-sqrt(sigma2_hat/Sxx)
+SE_beta0<-sqrt(sigma2_hat* (1/n * x_bar^2/Sxx))
+R2<-1-SSE/SST
+
+alpha<-0.05
+t_crit<-qt(1-alpha/2, df=n-2)
+CI_beta0<-c(beta0_hat-t_crit*SE_beta0,
+            beta0_hat +t_crit * SE_beta0)
+CI_beta1<-c(beta1_hat-t_crit*SE_beta1,
+            beta1_hat +t_crit * SE_beta1)
